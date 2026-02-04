@@ -5,6 +5,7 @@ C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Domain\obj\Debug\n
 C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Domain\obj\Debug\net10.0\Worker.Domain.AssemblyInfoInputs.cache
 C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Domain\obj\Debug\net10.0\Worker.Domain.AssemblyInfo.cs
 C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Domain\obj\Debug\net10.0\Worker.Domain.csproj.CoreCompileInputs.cache
+C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Domain\obj\Debug\net10.0\Worker.Domain.sourcelink.json
 C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Domain\obj\Debug\net10.0\Worker.Domain.dll
 C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Domain\obj\Debug\net10.0\refint\Worker.Domain.dll
 C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Domain\obj\Debug\net10.0\Worker.Domain.pdb

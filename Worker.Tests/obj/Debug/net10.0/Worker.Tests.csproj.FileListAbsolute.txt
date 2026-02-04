@@ -88,6 +88,7 @@ C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Tests\obj\Debug\ne
 C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Tests\obj\Debug\net10.0\Worker.Tests.AssemblyInfoInputs.cache
 C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Tests\obj\Debug\net10.0\Worker.Tests.AssemblyInfo.cs
 C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Tests\obj\Debug\net10.0\Worker.Tests.csproj.CoreCompileInputs.cache
+C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Tests\obj\Debug\net10.0\Worker.Tests.sourcelink.json
 C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Tests\obj\Debug\net10.0\Worker.T.6F28659F.Up2Date
 C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Tests\obj\Debug\net10.0\Worker.Tests.dll
 C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Tests\obj\Debug\net10.0\refint\Worker.Tests.dll
