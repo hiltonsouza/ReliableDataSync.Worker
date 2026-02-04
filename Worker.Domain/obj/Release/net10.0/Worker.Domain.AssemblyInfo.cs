@@ -12,9 +12,9 @@ using System;
 using System.Reflection;
 
 [assembly: System.Reflection.AssemblyCompanyAttribute("Worker.Domain")]
-[assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
+[assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7494e0829e261caacb775616a2c638c1c92cfbca")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e7dfdcb8ef1e7ac7676d2a8d2ced622050ca1b4c")]
 [assembly: System.Reflection.AssemblyProductAttribute("Worker.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Worker.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
