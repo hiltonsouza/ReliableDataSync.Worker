@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="Worker.Application/Worker.Application.csproj" />
+  <Project Path="Worker.Domain/Worker.Domain.csproj" />
+  <Project Path="Worker.Host/Worker.Host.csproj" />
+  <Project Path="Worker.Infrastructure/Worker.Infrastructure.csproj" />
+  <Project Path="Worker.Tests/Worker.Tests.csproj" />
+</Solution>

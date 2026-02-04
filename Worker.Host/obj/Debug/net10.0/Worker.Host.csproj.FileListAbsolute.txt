@@ -1,0 +1,14 @@
+C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Host\bin\Debug\net10.0\Worker.Host.exe
+C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Host\bin\Debug\net10.0\Worker.Host.deps.json
+C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Host\bin\Debug\net10.0\Worker.Host.runtimeconfig.json
+C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Host\bin\Debug\net10.0\Worker.Host.dll
+C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Host\bin\Debug\net10.0\Worker.Host.pdb
+C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Host\obj\Debug\net10.0\Worker.Host.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Host\obj\Debug\net10.0\Worker.Host.AssemblyInfoInputs.cache
+C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Host\obj\Debug\net10.0\Worker.Host.AssemblyInfo.cs
+C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Host\obj\Debug\net10.0\Worker.Host.csproj.CoreCompileInputs.cache
+C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Host\obj\Debug\net10.0\Worker.Host.dll
+C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Host\obj\Debug\net10.0\refint\Worker.Host.dll
+C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Host\obj\Debug\net10.0\Worker.Host.pdb
+C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Host\obj\Debug\net10.0\Worker.Host.genruntimeconfig.cache
+C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Host\obj\Debug\net10.0\ref\Worker.Host.dll
