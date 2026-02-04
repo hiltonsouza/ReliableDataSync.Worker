@@ -1,0 +1,12 @@
+C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Infrastructure\bin\Debug\net10.0\Worker.Infrastructure.deps.json
+C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Infrastructure\bin\Debug\net10.0\Worker.Infrastructure.dll
+C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Infrastructure\bin\Debug\net10.0\Worker.Infrastructure.pdb
+C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Infrastructure\obj\Debug\net10.0\Worker.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Infrastructure\obj\Debug\net10.0\Worker.Infrastructure.AssemblyInfoInputs.cache
+C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Infrastructure\obj\Debug\net10.0\Worker.Infrastructure.AssemblyInfo.cs
+C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Infrastructure\obj\Debug\net10.0\Worker.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Infrastructure\obj\Debug\net10.0\Worker.Infrastructure.sourcelink.json
+C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Infrastructure\obj\Debug\net10.0\Worker.Infrastructure.dll
+C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Infrastructure\obj\Debug\net10.0\refint\Worker.Infrastructure.dll
+C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Infrastructure\obj\Debug\net10.0\Worker.Infrastructure.pdb
+C:\Users\SouzaHi1\source\repos\ReliableDataSync.Worker\Worker.Infrastructure\obj\Debug\net10.0\ref\Worker.Infrastructure.dll

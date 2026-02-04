@@ -1,11 +1,30 @@
 {
   "version": 3,
   "targets": {
-    "net10.0": {}
+    "net10.0": {
+      "Worker.Domain/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v10.0",
+        "compile": {
+          "bin/placeholder/Worker.Domain.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Worker.Domain.dll": {}
+        }
+      }
+    }
   },
-  "libraries": {},
+  "libraries": {
+    "Worker.Domain/1.0.0": {
+      "type": "project",
+      "path": "../Worker.Domain/Worker.Domain.csproj",
+      "msbuildProject": "../Worker.Domain/Worker.Domain.csproj"
+    }
+  },
   "projectFileDependencyGroups": {
-    "net10.0": []
+    "net10.0": [
+      "Worker.Domain >= 1.0.0"
+    ]
   },
   "packageFolders": {
     "C:\\Users\\SouzaHi1\\.nuget\\packages\\": {},
@@ -38,7 +57,11 @@
       "frameworks": {
         "net10.0": {
           "targetAlias": "net10.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\Users\\SouzaHi1\\source\\repos\\ReliableDataSync.Worker\\Worker.Domain\\Worker.Domain.csproj": {
+              "projectPath": "C:\\Users\\SouzaHi1\\source\\repos\\ReliableDataSync.Worker\\Worker.Domain\\Worker.Domain.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

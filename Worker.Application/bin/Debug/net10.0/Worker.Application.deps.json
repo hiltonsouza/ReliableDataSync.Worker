@@ -7,14 +7,30 @@
   "targets": {
     ".NETCoreApp,Version=v10.0": {
       "Worker.Application/1.0.0": {
+        "dependencies": {
+          "Worker.Domain": "1.0.0"
+        },
         "runtime": {
           "Worker.Application.dll": {}
+        }
+      },
+      "Worker.Domain/1.0.0": {
+        "runtime": {
+          "Worker.Domain.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       }
     }
   },
   "libraries": {
     "Worker.Application/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Worker.Domain/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
