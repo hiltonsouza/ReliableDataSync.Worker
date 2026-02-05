@@ -7,7 +7,7 @@ namespace Worker.Domain.Entities
 {
     public sealed class SyncRecord
     {
-        public Guid Id { get; init; } = Guid.NewGuid();
+        public Guid Id { get; private set; } = Guid.NewGuid();
 
         /// <summary>
         /// Logical identifier used for idempotency against the external system.
@@ -29,7 +29,7 @@ namespace Worker.Domain.Entities
 
         public int Attempts { get; private set; } = 0;
         public DateTimeOffset? LastAttemptAt { get; private set; }
-        
+
         public DateTimeOffset CreatedAt { get; private set; } = DateTimeOffset.UtcNow;
         public DateTimeOffset UpdatedAt { get; private set; } = DateTimeOffset.UtcNow;
 
@@ -42,6 +42,35 @@ namespace Worker.Domain.Entities
             Touch();
         }
 
+        public static SyncRecord Rehydrate(
+            Guid id,
+            string externalKey,
+            string payloadHash,
+            ProcessingStatus status,
+            string message,
+            int attempts,
+            DateTimeOffset? lastAttemptAt,
+            DateTimeOffset createdAt,
+            DateTimeOffset updatedAt)
+        {
+            if (id == Guid.Empty)
+                throw new DomainValidationException("Id is required.");
+            if(string.IsNullOrWhiteSpace(externalKey))
+                throw new DomainValidationException("ExternalKey is required.");
+
+            var record = new SyncRecord(externalKey, payloadHash);
+
+            // set internal state (rehydration)
+            record.Id = id;
+            record.Status = status;
+            record.Message = (message ?? string.Empty).Trim();
+            record.Attempts = attempts < 0 ? 0 : attempts;
+            record.LastAttemptAt = lastAttemptAt;
+            record.CreatedAt = createdAt;
+            record.UpdatedAt = updatedAt;
+
+            return record;
+        }
         public void SetExternalKey(string externalKey)
         {
             if (string.IsNullOrWhiteSpace(externalKey))
