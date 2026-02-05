@@ -1,2 +1,14 @@
+**/bin/
+**/obj/
+*.user
+*.suo
+*.cache
+*.log
+
+# Visual Studio
 .vs/
+
+# Windows metadata
 desktop.ini
+**/desktop.ini
+Thumbs.db

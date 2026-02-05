@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="README.md" />
+  </Folder>
   <Project Path="Worker.Application/Worker.Application.csproj" />
   <Project Path="Worker.Domain/Worker.Domain.csproj" />
   <Project Path="Worker.Host/Worker.Host.csproj" />
