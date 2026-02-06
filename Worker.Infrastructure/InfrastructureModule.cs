@@ -40,6 +40,7 @@ namespace Worker.Infrastructure
         {
             services
                 .AddSqlSession(configuration)
+                .AddSingleton<DbInitializer>()
                 .AddSqlRepositories();
 
             return services;
