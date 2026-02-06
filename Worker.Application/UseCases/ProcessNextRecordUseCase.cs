@@ -1,64 +1,88 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Text;
+﻿using Microsoft.Extensions.Logging;
 using Worker.Application.Abstractions.External;
 using Worker.Application.Abstractions.Persistence;
 using Worker.Application.Abstractions.Time;
 using Worker.Application.Services;
 using Worker.Domain.Enums;
 
-namespace Worker.Application.UseCases
-{
-    public sealed class ProcessNextRecordUseCase
-    {
-        readonly IRecordQueueRepository _queueRepository;
-        readonly IExternalSystemClient _externalSystem;
-        readonly ExecutionClassifier _classifier;
-        readonly IClock _clock;
+namespace Worker.Application.UseCases;
 
-        public ProcessNextRecordUseCase(
-            IRecordQueueRepository queueRepository,
-            IExternalSystemClient externalSystem,
-            ExecutionClassifier classifier,
-            IClock clock)
+public sealed class ProcessNextRecordUseCase
+{
+    private readonly IRecordQueueRepository _queueRepository;
+    private readonly IExternalSystemClient _externalSystem;
+    private readonly ExecutionClassifier _classifier;
+    private readonly IClock _clock;
+    private readonly ILogger<ProcessNextRecordUseCase> _logger;
+
+    public ProcessNextRecordUseCase(
+        IRecordQueueRepository queueRepository,
+        IExternalSystemClient externalSystem,
+        ExecutionClassifier classifier,
+        IClock clock,
+        ILogger<ProcessNextRecordUseCase> logger)
+    {
+        _queueRepository = queueRepository;
+        _externalSystem = externalSystem;
+        _classifier = classifier;
+        _clock = clock;
+        _logger = logger;
+    }
+
+    public async Task<bool> ExecuteAsync(CancellationToken cancellationToken)
+    {
+        var startedUtc = _clock.UtcNow;
+
+        _logger.LogDebug("Looking for eligible record at {Now:o}", startedUtc);
+
+        var record = await _queueRepository.ClaimNextEligibleAsync(startedUtc, cancellationToken);
+
+        if (record is null)
         {
-            _queueRepository = queueRepository;
-            _externalSystem = externalSystem;
-            _classifier = classifier;
-            _clock = clock;
+            _logger.LogDebug("No eligible record found.");
+            return false;
         }
 
-        public async Task<bool> ExecuteAsync(CancellationToken cancellationToken)
+        // record.Attempts aqui já está incrementado (por causa do claim), então é o attempt atual
+        _logger.LogInformation(
+            "Processing {ExternalKey} Attempt={Attempt} Status={Status} Id={Id}",
+            record.ExternalKey, record.Attempts, record.Status, record.Id);
+
+        try
         {
-            var nowUtc = _clock.UtcNow;
+            _logger.LogInformation("Calling external system for {ExternalKey} Id={Id}...", record.ExternalKey, record.Id);
 
-            var record = await _queueRepository.ClaimNextEligibleAsync(nowUtc, cancellationToken);
+            var result = await _externalSystem.UpsertAsync(record, cancellationToken);
+            var status = _classifier.Classify(result);
 
-            if (record is null) return false;
+            var msg = result.EnsureMessage().Message ?? "";
 
-            try
-            {
-                // External call (can be mainframe, terminal, API, etc.)
-                var result = await _externalSystem.UpsertAsync(record, cancellationToken);
-                var status = _classifier.Classify(result);
+            _logger.LogInformation(
+                "External result {ExternalKey} => {Status}. Message={Message}",
+                record.ExternalKey, status, msg);
+            
+            var finishedUtc = _clock.UtcNow;
 
-                await _queueRepository.SaveOutcomeAsync(record.Id, status, result.EnsureMessage().Message, nowUtc, cancellationToken);
+            await _queueRepository.SaveOutcomeAsync(record.Id, status, msg, finishedUtc, cancellationToken);
 
-                return true;
-            }
-            catch (OperationCanceledException)
-            {
-                // propagate cancellations
-                throw;
-            }
-            catch (Exception ex)
-            {
-                var message = $"Unexpected error: {ex.GetType().Name} - {ex.Message}";
-                await _queueRepository.SaveOutcomeAsync(record.Id, ProcessingStatus.RetryableError, message, nowUtc, cancellationToken);
-                return true;
-            }
+            _logger.LogInformation("Saved outcome {ExternalKey} => {Status}", record.ExternalKey, status);
 
+            return true;
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            var message = $"Unexpected error: {ex.GetType().Name} - {ex.Message}";
+            _logger.LogError(ex, "Unhandled error processing {ExternalKey} Id={Id}", record.ExternalKey, record.Id);
+
+            await _queueRepository.SaveOutcomeAsync(record.Id, ProcessingStatus.RetryableError, message, startedUtc, cancellationToken);
+            _logger.LogWarning("Saved outcome {ExternalKey} => RetryableError", record.ExternalKey);
+
+            return true;
         }
     }
+
 }

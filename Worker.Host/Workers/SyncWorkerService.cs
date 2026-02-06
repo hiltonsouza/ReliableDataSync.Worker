@@ -2,53 +2,53 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Worker.Application.UseCases;
 
-namespace Worker.Host.Workers
+namespace Worker.Host.Workers;
+
+public sealed class SyncWorkerService : BackgroundService
 {
-    public sealed class SyncWorkerService : BackgroundService
+    private readonly IServiceScopeFactory _serviceFactory;
+    private readonly ILogger<SyncWorkerService> _logger;
+    private readonly TimeSpan _pollInterval;
+
+    public SyncWorkerService(
+        IServiceScopeFactory serviceFactory,
+        IConfiguration configuration,
+        ILogger<SyncWorkerService> logger)
     {
-        readonly IServiceScopeFactory _serviceFactory;
-        readonly ILogger<SyncWorkerService> _logger;
-        readonly TimeSpan _pollInterval;
+        _serviceFactory = serviceFactory;
+        _logger = logger;
 
-        public SyncWorkerService(
-            IServiceScopeFactory serviceFactory,
-            IConfiguration configuration,
-            ILogger<SyncWorkerService> logger)
+        var seconds = configuration.GetValue<int?>("Worker:PollIntervalSeconds") ?? 2;
+        _pollInterval = TimeSpan.FromSeconds(Math.Max(1, seconds));
+        _logger.LogInformation("Sync worker started. PollIntervalSeconds={PollIntervalSeconds}", (int)_pollInterval.TotalSeconds);
+    }
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        _logger.LogInformation("Sync worker started. PollIntervalSeconds={Seconds}", _pollInterval.TotalSeconds);
+
+        while (!stoppingToken.IsCancellationRequested)
         {
-            _serviceFactory = serviceFactory;
-            _logger = logger;
-
-            var seconds = configuration.GetValue<int?>("Worker:PollIntervalSeconds") ?? 2;
-            _pollInterval = TimeSpan.FromSeconds(Math.Max(1, seconds));
-        }
-
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-        {
-            while (!stoppingToken.IsCancellationRequested)
+            try
             {
-                try
-                {
-                    using var scope = _serviceFactory.CreateScope();
-                    var useCase = scope.ServiceProvider.GetRequiredService<ProcessNextRecordUseCase>();
+                using var scope = _serviceFactory.CreateScope();
+                var useCase = scope.ServiceProvider.GetRequiredService<ProcessNextRecordUseCase>();
 
-                    var didWork = await useCase.ExecuteAsync(stoppingToken);
-                    if (!didWork)
-                        await Task.Delay(_pollInterval, stoppingToken);
-                }
-                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
-                {
-                    //shutdown normal
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Worker loop error");
-                    await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
-                }
+                var didWork = await useCase.ExecuteAsync(stoppingToken);
+
+                if (!didWork)
+                    await Task.Delay(_pollInterval, stoppingToken);
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                _logger.LogInformation("Sync worker stopping...");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Worker loop error");
+                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
             }
         }
     }

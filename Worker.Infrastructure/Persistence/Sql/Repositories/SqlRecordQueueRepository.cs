@@ -12,16 +12,16 @@ namespace Worker.Infrastructure.Persistence.Sql.Repositories
     {
         readonly ReliableDataSyncDbSession _db;
         readonly RetryPolicy _retryPolicy;
-        readonly AttemptLimitPolicy _attemptionLimitPolicy;
+        readonly AttemptLimitPolicy _attemptLimitPolicy;
 
         public SqlRecordQueueRepository(
             ReliableDataSyncDbSession db,
             RetryPolicy retryPolicy,
-            AttemptLimitPolicy attemptionLimitPolicy)
+            AttemptLimitPolicy attemptLimitPolicy)
         {
             _db = db;
             _retryPolicy = retryPolicy;
-            _attemptionLimitPolicy = attemptionLimitPolicy;
+            _attemptLimitPolicy = attemptLimitPolicy;
         }
 
         public async Task<SyncRecord?> ClaimNextEligibleAsync(DateTimeOffset nowUtc, CancellationToken cancellationToken)
@@ -32,20 +32,19 @@ namespace Worker.Infrastructure.Persistence.Sql.Repositories
     SELECT TOP(1) *
     FROM dbo.SyncRecords WITH (READPAST, UPDLOCK, ROWLOCK)
     WHERE
-        ( 
+        (
             Status = @Pending
-
-            OR 
-
-            (Status = @RetryableError AND (LastAttemptAt IS NULL OR DATEADD(
-                SECOND, @MinRetryDelaySeconds, LastAttemptAt) <= @NowUtc))
+            OR
+            (
+                Status = @RetryableError
+                AND (LastAttemptAt IS NULL OR DATEADD(SECOND, @MinRetryDelaySeconds, LastAttemptAt) <= @NowUtc)
+            )
         )
         AND Attempts < @MaxAttempts
     ORDER BY CreatedAt ASC
 )
 UPDATE Candidates
-
-SET 
+SET
     Status = @InProgress,
     Attempts = Attempts + 1,
     LastAttemptAt = @NowUtc,
@@ -61,11 +60,9 @@ OUTPUT
     inserted.LastAttemptAt,
     inserted.CreatedAt,
     inserted.UpdatedAt;
-
 ";
-            using var conn = await _db.CreateOpenConnectionAsync(cancellationToken);
 
-            // Transação curta só para o claim.
+            using var conn = await _db.CreateOpenConnectionAsync(cancellationToken);
             using var tx = conn.BeginTransaction(IsolationLevel.ReadCommitted);
 
             var row = await conn.QueryFirstOrDefaultAsync<SyncRecordRow>(
@@ -73,12 +70,11 @@ OUTPUT
                     sql,
                     new
                     {
-
                         NowUtc = nowUtc,
                         Pending = (int)ProcessingStatus.Pending,
                         RetryableError = (int)ProcessingStatus.RetryableError,
                         InProgress = (int)ProcessingStatus.InProgress,
-                        MaxAttempts = _attemptionLimitPolicy.MaxAttempts,
+                        MaxAttempts = _attemptLimitPolicy.MaxAttempts,
                         MinRetryDelaySeconds = (int)_retryPolicy.MinimumRetryDelay.TotalSeconds,
                     },
                     transaction: tx,
@@ -89,14 +85,24 @@ OUTPUT
             return row is null ? null : MapToDomain(row);
         }
 
-        public async Task SaveOutcomeAsync(Guid id, ProcessingStatus status, string message, DateTimeOffset now, CancellationToken cancellationToken)
+        public async Task SaveOutcomeAsync(
+            Guid id,
+            ProcessingStatus status,
+            string message,
+            DateTimeOffset nowUtc,
+            CancellationToken cancellationToken)
         {
             const string sql = @"
 UPDATE dbo.SyncRecords
 SET
-    Status = @Status,
+    Status =
+        CASE
+            WHEN @Status = @RetryableError AND Attempts >= @MaxAttempts THEN @Failed
+            ELSE @Status
+        END,
     Message = @Message,
-    UpdatedAt = @Now
+    UpdatedAt = @NowUtc,
+    LastAttemptAt = @NowUtc
 WHERE Id = @Id;
 ";
 
@@ -108,12 +114,14 @@ WHERE Id = @Id;
                 {
                     Id = id,
                     Status = (int)status,
-                    Message = (message ?? string.Empty).Trim(),
-                    Now = now
+                    Message = message ?? "",
+                    NowUtc = nowUtc,
+                    RetryableError = (int)ProcessingStatus.RetryableError,
+                    Failed = (int)ProcessingStatus.Failed,
+                    MaxAttempts = _attemptLimitPolicy.MaxAttempts
                 },
                 cancellationToken: cancellationToken));
         }
-
 
         private static SyncRecord MapToDomain(SyncRecordRow row)
         {
