@@ -1,8 +1,8 @@
 ﻿
-// See https://aka.ms/new-console-template for more information
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Worker.Application;
+using Worker.Host.Workers;
 using Worker.Infrastructure;
 
 var builder = Host.CreateApplicationBuilder(args);
