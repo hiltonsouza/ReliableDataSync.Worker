@@ -13,8 +13,11 @@ namespace Worker.Application.Abstractions.Persistence
         /// automatically marking it as InProgress and incrementing attempts.
         /// Returns null if nothing is eligible.
         /// </summary>
-        Task<SyncRecord?> ClaimNextEligibleAsync(DateTimeOffset nowUtc, CancellationToken cancellationToken = default);
+        Task<SyncRecord?> ClaimNextEligibleAsync(DateTimeOffset nowUtc, CancellationToken cancellationToken);
 
-        Task SaveOutcomeAsync(Guid id, ProcessingStatus status, string message, DateTimeOffset nowUtc, CancellationToken cancellationToken = default);
+        /// <summary>
+        /// Persists the final outcome of a processing attempt (status + message).
+        /// </summary>
+        Task SaveOutcomeAsync(Guid id, ProcessingStatus status, string message, DateTimeOffset nowUtc, CancellationToken cancellationToken);
     }
 }
