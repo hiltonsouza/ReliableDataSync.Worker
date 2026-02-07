@@ -19,4 +19,8 @@
     <ProjectReference Include="..\Worker.Domain\Worker.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ExternalSystems\" />
+  </ItemGroup>
+
 </Project>

@@ -1,14 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Worker.Application.Abstractions.External;
 using Worker.Application.Abstractions.Persistence;
-using Worker.Application.Abstractions.Time;
-using Worker.Domain.Policies;
-using Worker.Domain.ValueObjects;
-using Worker.Infrastructure.ExternalSystems;
-using Worker.Infrastructure.Persistence.Sql;
-using Worker.Infrastructure.Persistence.Sql.Repositories;
-using Worker.Infrastructure.Time;
+using Worker.Infrastructure.Persistence;
+using Worker.Infrastructure.Persistence.Repositories;
 
 namespace Worker.Infrastructure
 {
@@ -17,45 +11,31 @@ namespace Worker.Infrastructure
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
             services
-                .AddCommon(configuration)
-                .AddSqlPersistence(configuration);
+                .AddRepositories()
+                .AddDbSession(configuration)
+                .AddUnitOfWork();
 
             return services;
         }
-
-        private static IServiceCollection AddCommon(this IServiceCollection services, IConfiguration configuration)
-        {
-            var maxAttempts = configuration.GetValue<int?>("Worker:MaxAttempts") ?? 5;
-            var minRetryDelaySeconds = configuration.GetValue<int?>("Worker:MinimumRetryDelaySeconds") ?? 30;
-
-            services.AddSingleton(new AttemptLimitPolicy(maxAttempts));
-            services.AddSingleton(new RetryPolicy(TimeSpan.FromSeconds(minRetryDelaySeconds)));
-            services.AddScoped<IExternalSystemClient, FakeExternalSystemClient>();
-            services.AddSingleton<IClock, SystemClock>();
-
-            return services;
-        }
-
-        private static IServiceCollection AddSqlPersistence(this IServiceCollection services, IConfiguration configuration)
+        private static IServiceCollection AddRepositories(this IServiceCollection services)
         {
             services
-                .AddSqlSession(configuration)
-                .AddSingleton<DbInitializer>()
-                .AddSqlRepositories();
+                .AddScoped<ISyncRecordRepository, SyncRecordRepository>();
 
             return services;
         }
-        private static IServiceCollection AddSqlSession(this IServiceCollection services, IConfiguration configuration)
+
+        private static IServiceCollection AddUnitOfWork(this IServiceCollection services)
         {
             services
-                .AddSingleton(new ReliableDataSyncDbSession(configuration));
+                .AddScoped<IUnitOfWork, UnitOfWork>();
 
             return services;
         }
-        private static IServiceCollection AddSqlRepositories(this IServiceCollection services)
+        private static IServiceCollection AddDbSession(this IServiceCollection services, IConfiguration configuration)
         {
             services
-                .AddScoped<IRecordQueueRepository, SqlRecordQueueRepository>();
+                .AddScoped<DbSession>();
 
             return services;
         }
