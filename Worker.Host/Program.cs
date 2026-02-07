@@ -1,45 +1,47 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Serilog;
 using Worker.Application;
+using Worker.Application.Configuration;
+using Worker.Domain.Repositories;
 using Worker.Host.Workers;
 using Worker.Infrastructure;
-using Worker.Infrastructure.Persistence.Sql;
+using Worker.Infrastructure.Decorators;
 
-var builder = Host.CreateApplicationBuilder(args);
+// Setup Serilog
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateLogger();
 
-// Logging console (bonito e consistente)
-builder.Logging.ClearProviders();
-builder.Logging.AddSimpleConsole(o =>
+try
 {
-    o.SingleLine = true;
-    o.TimestampFormat = "HH:mm:ss ";
-});
+    var host = Host.CreateDefaultBuilder(args)
+        .UseSerilog()
+        .ConfigureServices((context, services) =>
+        {
+            // 1. Configurações (Bind do appsettings)
+            services.Configure<WorkerSettings>(context.Configuration.GetSection("Worker"));
 
-// DI
-builder.Services
-    .AddApplication()
-    .AddInfrastructure(builder.Configuration);
+            // Modules (Clean Architecture root)
+            services.AddApplication();
+            services.AddInfrastructure(context.Configuration);
 
-builder.Services.AddHostedService<SyncWorkerService>();
+            // 3. Register Decorator (Requires 'Scrutor' NuGet package)
+            // This wraps the standard SyncRecordRepository with the Logged version
+            services.Decorate<ISyncRecordRepository, LoggedSyncRecordRepository>();
 
-var app = builder.Build();
+            // 4. Hosted Service
+            services.AddHostedService<SyncWorkerService>();
+        })
+        .Build();
 
-// Bootstrap + init do banco
-var bootstrapLogger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Bootstrap");
-
-bootstrapLogger.LogInformation("Starting ReliableDataSync Worker...");
-bootstrapLogger.LogInformation("Initializing dependencies...");
-using (var scope = app.Services.CreateScope())
-{
-    bootstrapLogger.LogInformation("Initializing SQL persistence...");
-
-    var init = scope.ServiceProvider.GetRequiredService<DbInitializer>();
-    await init.InitializerAsync(CancellationToken.None);
-
-    bootstrapLogger.LogInformation("SQL persistence ready.");
+    await host.RunAsync();
 }
-
-bootstrapLogger.LogInformation("Initialization completed. Worker is running.");
-
-app.Run();
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Fatal error trying start");
+}
+finally
+{
+    Log.CloseAndFlush();
+}
